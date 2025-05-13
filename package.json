@@ -5,7 +5,7 @@
 	"private": true,
 	"description": "AWS SAM TypeScript template",
 	"scripts": {
-		"start": "sam build && sam local invoke",
+		"start": "npm run build && sam local invoke",
 		"build": "sam build",
 		"test": "ava",
 		"prepare": "husky"
