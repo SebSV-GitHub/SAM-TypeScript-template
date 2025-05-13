@@ -1,28 +1,45 @@
-Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: 2010-09-09
+Description: TypeScript template
+Transform:
+  - AWS::Serverless-2016-10-31
+
 Resources:
-  TypeScriptTemplateGreeterLambda:
+  helloFromLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: TypeScriptTemplateGreeterLambda
       CodeUri: hello-world
       Handler: src/index.handler
       Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Environment: {}
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Policies:
+        - AWSLambdaBasicExecutionRole
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
-        Minify: false
+        Minify: true
         Target: es2020
-        Sourcemap: false
+        Sourcemap: true
         EntryPoints:
           - src/index.ts
-  TypeScriptTemplateGreeterLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
     Properties:
-      LogGroupName: !Sub /aws/lambda/${TypeScriptTemplateGreeterLambda}
+      Name: !Sub ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName: !Ref ApplicationResourceGroup
+      AutoConfigurationEnabled: true
+Globals:
+  Function:
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
+  Api:
+    TracingEnabled: true
