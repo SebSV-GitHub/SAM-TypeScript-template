@@ -1,62 +1,28 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  SAMHelloWorld:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub
-        - ${ResourceName} From Stack ${AWS::StackName}
-        - ResourceName: SAMHelloWorld
-      StageName: Prod
-      DefinitionBody:
-        openapi: "3.0"
-        info: {}
-        paths:
-          /:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SAMHelloWorldGreeter.Arn}/invocations
-              responses: {}
-      EndpointConfiguration: REGIONAL
-      TracingEnabled: true
-      Auth:
-        DefaultAuthorizer: AWS_IAM
-      Cors:
-        AllowOrigin: "'*'"
-        AllowHeaders: "'*'"
-        AllowMethods: "'get'"
-        MaxAge: 5
-  SAMHelloWorldGreeter:
+  TypeScriptTemplateGreeterLambda:
     Type: AWS::Serverless::Function
     Properties:
       Description: !Sub
         - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: SAMHelloWorldGreeter
+        - ResourceName: TypeScriptTemplateGreeterLambda
       CodeUri: hello-world
       Handler: src/index.handler
       Runtime: nodejs22.x
       MemorySize: 3008
       Timeout: 30
       Tracing: Active
-      Events:
-        SAMHelloWorldGET:
-          Type: Api
-          Properties:
-            Path: /
-            Method: GET
-            RestApiId: !Ref SAMHelloWorld
       Environment: {}
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
-        Minify: true
+        Minify: false
         Target: es2020
-        Sourcemap: true
+        Sourcemap: false
         EntryPoints:
           - src/index.ts
-  SAMHelloWorldGreeterLogGroup:
+  TypeScriptTemplateGreeterLambdaLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
-      LogGroupName: !Sub /aws/lambda/${SAMHelloWorldGreeter}
+      LogGroupName: !Sub /aws/lambda/${TypeScriptTemplateGreeterLambda}
